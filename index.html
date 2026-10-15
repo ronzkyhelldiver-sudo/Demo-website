@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Naturpark Dahme-Spreewald</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      position: relative;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #164528;
+      background: rgb(208, 254, 205);
+    }
+    .foto {
+      display: block;
+      width: 100%;
+      height: clamp(180px, 28vw, 320px);
+      max-height: 45svh;
+      object-fit: cover;
+      object-position: center;
+    }
+    .welle {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: clamp(80px, 10.5vw, 140px);
+      margin-top: calc(clamp(80px, 10.5vw, 140px) * -0.41);
+      opacity: 0.8;
+    }
+    h1 {
+      margin: 0;
+      padding: 16px 16px 48px;
+      text-align: center;
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
+    }
+    .tabs-section { max-width: 1050px; margin: 0 auto 64px; padding: 0 20px; }
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 8px;
+      border: 1px solid rgba(22,69,40,.12); border-radius: 22px;
+      background: rgba(255,255,255,.6);
+    }
+    .tab {
+      position: relative; flex: 1 1 180px; border: 0; border-radius: 15px;
+      padding: 18px 20px; font: inherit; font-weight: 600; color: #164528;
+      background: transparent; cursor: pointer;
+      transition: transform .25s ease, background-color .25s ease, color .25s ease, box-shadow .25s ease;
+    }
+    .tab::after {
+      content: ''; position: absolute; bottom: 9px; left: 30%; right: 30%;
+      height: 2px; border-radius: 2px; background: currentColor;
+      transform: scaleX(0); transition: transform .25s ease;
+    }
+    .tab:hover { transform: translateY(-3px); background: #e7f8e4; box-shadow: 0 6px 14px #16452812; }
+    .tab:hover::after, .tab[aria-selected="true"]::after { transform: scaleX(1); }
+    .tab[aria-selected="true"] { color: white; background: #107f40; box-shadow: 0 5px 14px #107f4026; }
+    .tab:active { transform: translateY(0); }
+    .tab:focus-visible { outline: 3px solid #164528; outline-offset: 3px; }
+    .tab-panel { margin-top: 20px; padding: 28px; border-radius: 20px; background: rgba(255,255,255,.65); animation: appear .35s ease both; }
+    .tab-panel[hidden] { display: none; }
+    .tab-panel h2 { margin: 0 0 12px; }
+    .tab-panel p { margin: 0; line-height: 1.7; }
+    @keyframes appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) {
+      .tab, .tab::after { transition: none; }
+      .tab:hover { transform: none; }
+      .tab-panel { animation: none; }
+    }
+    .carousel {
+      position: relative;
+      height: clamp(180px, 28vw, 320px);
+      max-height: 45svh;
+      background: #164528;
+    }
+    .carousel .foto {
+      position: absolute; inset: 0; height: 100%; max-height: none;
+      opacity: 0; transition: opacity .55s ease;
+    }
+    .carousel .foto.is-active { opacity: 1; }
+    .carousel-arrow {
+      position: absolute; top: 35%; z-index: 2;
+      width: 46px; height: 46px; display: grid; place-items: center;
+      padding: 0; border: 1px solid rgba(255,255,255,.7); border-radius: 50%;
+      background: rgba(10,42,25,.65); color: white; cursor: pointer;
+      transition: background-color .25s ease, scale .25s ease;
+    }
+    .carousel-arrow svg { width: 23px; height: 23px; }
+    .carousel-arrow.prev { left: 16px; }
+    .carousel-arrow.next { right: 16px; }
+    .carousel-arrow:hover { background: #107f40; scale: 1.1; }
+    .carousel-arrow:active { scale: .95; }
+    .carousel-arrow:focus-visible { outline: 3px solid white; outline-offset: 4px; }
+    .welle { pointer-events: none; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .carousel .foto, .carousel-arrow { transition: none; }
+    }
+    .park-overview { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+    .park-map { margin: 0; min-width: 0; }
+    .park-map iframe { display: block; width: 100%; height: 480px; border: 1px solid #16452825; border-radius: 12px; background: white; }
+    .park-map figcaption { margin-top: 10px; font-size: .8rem; line-height: 1.5; }
+    .park-map a { color: #164528; text-underline-offset: 3px; }
+    .park-intro { padding: 12px 0; }
+    .park-intro .eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .13em; font-weight: 700; margin-bottom: 12px; }
+    .park-intro h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.2; }
+    .park-intro p + p { margin-top: 16px; }
+    .map-link { display: inline-block; margin-top: 24px; padding: 13px 20px; border-radius: 12px; background: #107f40; color: white; text-decoration: none; font-weight: 600; transition: background-color .2s ease; }
+    .map-link:hover { background: #164528; }
+    .map-link:focus-visible { outline: 3px solid #164528; outline-offset: 4px; }
+    @media (max-width: 700px) {
+      .park-overview { grid-template-columns: 1fr; gap: 16px; }
+      .park-map iframe { height: 400px; }
+    }
+    .route-links { display: grid; gap: 12px; margin-top: 20px; }
+    .park-map .route-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 20px; border-radius: 14px; border: 1px solid #16452820;
+      color: #164528; background: #e7f3e4; text-decoration: none;
+      transition: transform .25s ease, background-color .25s ease, box-shadow .25s ease;
+    }
+    .route-card strong { display: block; font-size: 1.1rem; }
+    .route-card small { display: block; margin-top: 6px; line-height: 1.5; }
+    .park-map .route-card:hover { transform: translateY(-3px); background: #d5edcf; box-shadow: 0 6px 16px #16452815; }
+    .route-card:focus-visible { outline: 3px solid #107f40; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      .park-map .route-card { transition: none; transform: none; }
+    }
+    .seenland-card {
+      display: flex; flex-direction: column; gap: 14px; margin-top: 32px;
+      padding: 26px; border-radius: 18px; border: 1px solid #16452820;
+      background: linear-gradient(135deg, #e0f2ed, #d2e9d5); color: #164528;
+      text-decoration: none; transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .seenland-card .seenland-label { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+    .seenland-card strong { font-size: 1.5rem; line-height: 1.25; }
+    .seenland-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px #16452820; }
+    .seenland-card:focus-visible { outline: 3px solid #107f40; outline-offset: 4px; }
+    @media (prefers-reduced-motion: reduce) { .seenland-card { transition: none; transform: none; } }
+    .site-header { position: absolute; top: 12px; left: clamp(12px, 3vw, 36px); z-index: 3; max-width: calc(100% - 24px); }
+    .site-header a { display: inline-block; max-width: 100%; padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .site-header img { display: block; width: 220px; max-width: 100%; height: auto; filter: drop-shadow(0 0 1px white) drop-shadow(0 0 2px rgba(255,255,255,.8)); }
+    .seenland-logo { display: inline-block; margin-top: 24px; padding: 16px; border-radius: 12px; background: white; }
+    .seenland-logo img { display: block; width: 220px; max-width: 100%; height: auto; }
+    .site-header a:focus-visible, .seenland-logo:focus-visible { outline: 3px solid #107f40; outline-offset: 4px; }
+    .design-credit {
+      position: absolute; top: 14px; right: 16px; z-index: 3;
+      margin: 0; padding: 5px 8px; border-radius: 5px;
+      font-size: 11px; line-height: 1.4; color: #fff;
+      background: rgba(0,0,0,.24); text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    }
+    @media (max-width: 600px) {
+      .design-credit { top: 104px; right: 12px; font-size: 10px; }
+    }
+    .tips-section {
+      max-width: 1010px; margin: 0 auto 64px; padding: clamp(20px, 4vw, 32px);
+      border: 1px solid rgba(22,69,40,.1); border-radius: 22px;
+      background: rgba(255,255,255,.65);
+    }
+    .tips-section h2 { margin: 0 0 24px; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .topic-filters { display: flex; flex-wrap: wrap; gap: 10px; }
+    .topic-filter {
+      min-height: 44px; padding: 12px 17px; border: 1px solid #16452825;
+      border-radius: 12px; background: #e7f3e4; color: #164528;
+      font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer;
+      transition: transform .25s ease, background-color .25s ease, color .25s ease, box-shadow .25s ease;
+    }
+    .topic-filter:hover { transform: translateY(-3px); box-shadow: 0 5px 12px #16452815; background: #d5edcf; }
+    .topic-filter[aria-pressed="true"] { color: white; background: #107f40; border-color: #107f40; }
+    .topic-filter:focus-visible { outline: 3px solid #164528; outline-offset: 3px; }
+    .topic-filter:active { transform: translateY(0); }
+    .topic-content { margin-top: 24px; padding: 24px; border-radius: 16px; background: rgba(255,255,255,.55); }
+    .topic-content h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .topic-content p { margin: 0; line-height: 1.7; }
+    @media (max-width: 1050px) { .tips-section { margin-left: 20px; margin-right: 20px; } }
+    @media (max-width: 480px) { .topic-filter { flex: 1 1 100%; } }
+    @media (prefers-reduced-motion: reduce) { .topic-filter { transition: none; transform: none; } }
+    /* Dezente Naturmotive nur in den freien Seitenrändern. */
+    body::before, body::after {
+      content: ''; position: absolute; top: 360px; bottom: 0;
+      width: clamp(0px, calc((100vw - 1080px) / 2), 180px);
+      pointer-events: none; opacity: .16;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 520'%3E%3Cg fill='none' stroke='%232b753c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M45 110Q18 58 76 30Q96 84 45 110ZM45 110L70 47M58 78L43 65M57 81L75 74'/%3E%3Cpath d='M104 370Q60 336 95 289Q142 326 104 370ZM104 370L97 307M101 337L86 327M102 343L117 329'/%3E%3Cpath d='M35 470Q14 445 40 418Q68 445 35 470ZM35 470L40 429'/%3E%3C/g%3E%3Cg fill='%232b753c' transform='translate(72 185) rotate(20)'%3E%3Cpath d='M4 42C-8 33-11 23-3 17C2 13 5 16 10 10C15 4 21 8 24 15C28 21 36 20 35 29C34 40 25 45 18 42C12 39 9 46 4 42Z'/%3E%3Cellipse cx='-6' cy='6' rx='5' ry='8' transform='rotate(-25 -6 6)'/%3E%3Cellipse cx='7' cy='-6' rx='5' ry='8'/%3E%3Cellipse cx='21' cy='-5' rx='5' ry='8' transform='rotate(15 21 -5)'/%3E%3Cellipse cx='33' cy='5' rx='5' ry='8' transform='rotate(30 33 5)'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 160px 520px; background-repeat: repeat-y;
+    }
+    body::before { left: 0; background-position: center top; }
+    body::after { right: 0; background-position: center 120px; transform: scaleX(-1); }
+    @media (max-width: 1150px) { body::before, body::after { display: none; } }
+    .map-preview { display: block; border-radius: 12px; overflow: hidden; background: white; }
+    .map-preview img { display: block; width: 100%; height: auto; }
+    .map-preview:focus-visible { outline: 3px solid #107f40; outline-offset: 4px; }
+    .map-landscape { display: block; width: 100%; height: 130px; object-fit: cover; border-radius: 12px; margin-top: 18px; }
+    .event-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 24px; }
+    .event-card {
+      display: flex; flex-direction: column; width: 100%; max-width: 420px; padding: 0;
+      border: 1px solid #16452815; border-radius: 18px; overflow: hidden;
+      font: inherit; color: #164528; text-align: left; background: white; cursor: pointer;
+      box-shadow: 0 4px 12px #1645280a;
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+    .event-image-wrap { display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: #e7f3e4; }
+    .event-image { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .event-card-body { display: flex; flex: 1; flex-direction: column; gap: 12px; padding: 22px; }
+    .event-meta { font-size: .8rem; color: #45694e; }
+    .event-title { font-size: 1.25rem; line-height: 1.3; }
+    .event-summary { font-size: .95rem; line-height: 1.6; }
+    .event-more { margin-top: auto; padding-top: 10px; font-weight: 700; font-size: .9rem; }
+    @media (hover: hover) {
+      .event-card:hover { transform: translateY(-6px); box-shadow: 0 16px 30px #16452825; border-color: #107f4055; }
+      .event-card:hover .event-image { transform: scale(1.045); }
+    }
+    .event-card:focus-visible { outline: 3px solid #107f40; outline-offset: 4px; }
+    .event-dialog { width: min(640px, calc(100% - 32px)); max-height: 90svh; padding: 0; border: none; border-radius: 22px; color: #164528; background: #f8fcf6; box-shadow: 0 24px 80px #0004; }
+    .event-dialog::backdrop { background: #09281799; backdrop-filter: blur(4px); }
+    .event-dialog[open] { animation: appear .25s ease both; }
+    .event-dialog form { position: sticky; top: 0; display: flex; justify-content: flex-end; padding: 12px; z-index: 1; background: #f8fcf6; }
+    .event-close { min-height: 44px; padding: 10px 16px; border: 1px solid #16452833; border-radius: 10px; background: white; font: inherit; color: #164528; cursor: pointer; }
+    .event-close:focus-visible { outline: 3px solid #107f40; outline-offset: 2px; }
+    .event-dialog-image { display: block; width: 100%; max-height: 300px; object-fit: cover; }
+    .event-dialog-body { padding: 24px; }
+    .event-dialog-body p { line-height: 1.7; white-space: pre-line; }
+    .event-dialog-body h2 { margin: 12px 0; }
+    body:has(.event-dialog[open]) { overflow: hidden; }
+    .topic-empty[hidden] { display: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .event-card, .event-image { transition: none; }
+      .event-card:hover, .event-card:hover .event-image { transform: none; }
+      .event-dialog[open] { animation: none; }
+    }
+    .event-image-credit { font-size: .75rem; color: #45694e; margin: 0 0 16px; }
+    .event-contact[hidden] { display: none; }
+    .event-source[hidden] { display: none; }
+    .event-register { border: none; font: inherit; font-weight: 600; cursor: pointer; }
+    .registration-dialog { width: min(560px, calc(100% - 32px)); max-height: 90svh; padding: 0; border: none; border-radius: 22px; color: #164528; background: #f8fcf6; }
+    .registration-dialog::backdrop { background: #09281799; backdrop-filter: blur(4px); }
+    .registration-close-row { position: sticky; top: 0; display: flex; justify-content: flex-end; padding: 12px; background: #f8fcf6; }
+    .registration-body { padding: 0 24px 28px; }
+    .registration-body h2 { margin: 8px 0 12px; }
+    .registration-event { font-weight: 600; line-height: 1.6; }
+    .registration-notice { padding: 14px; border-radius: 10px; background: #e7f3e4; line-height: 1.6; font-size: .9rem; }
+    .registration-form { display: grid; gap: 16px; margin-top: 24px; }
+    .registration-form label { display: grid; gap: 8px; font-size: .95rem; }
+    .registration-form input, .registration-form textarea { width: 100%; min-height: 44px; padding: 12px; font: inherit; color: #164528; background: white; border: 1px solid #16452840; border-radius: 10px; }
+    .registration-form input:focus-visible, .registration-form textarea:focus-visible { outline: 3px solid #107f40; outline-offset: 2px; }
+    .registration-required { margin: 0; font-size: .8rem; }
+    .registration-submit { border: none; font: inherit; margin-top: 0; opacity: .6; cursor: not-allowed; }
+    body:has(.registration-dialog[open]) { overflow: hidden; }
+    .event-register[hidden] { display: none; }
+    .event-dialog, .registration-dialog {
+      overflow: hidden;
+      border-radius: 22px;
+    }
+    .dialog-scroll {
+      max-height: 90svh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: #80aa85 #edf5e9;
+    }
+    .dialog-scroll::-webkit-scrollbar { width: 8px; }
+    .dialog-scroll::-webkit-scrollbar-track {
+      background: #edf5e9;
+      border-radius: 999px;
+      margin-block: 18px;
+    }
+    .dialog-scroll::-webkit-scrollbar-thumb {
+      background: #80aa85;
+      border: 2px solid #edf5e9;
+      border-radius: 999px;
+    }
+    .dialog-scroll::-webkit-scrollbar-thumb:hover { background: #107f40; }
+    .event-dialog, .registration-dialog {
+      padding-block: 14px;
+    }
+    .dialog-scroll {
+      max-height: calc(90svh - 28px);
+    }
+    .event-image-links { font-size: .8rem; }
+    .event-image-links a { color: #164528; text-underline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <p class="design-credit">&copy; Entworfen von Aaron Rosenthal</p>
+  <header class="site-header">
+    <a href="https://www.dahme-heideseen-naturpark.de/" target="_blank" rel="noopener" aria-label="Offizielle Website des Naturparks Dahme-Heideseen">
+      <img src="logo-naturpark.svg" alt="Naturpark Dahme-Heideseen" width="241" height="59">
+    </a>
+  </header>
+  <main>
+    <section class="carousel" aria-label="Bilder aus der Natur" aria-roledescription="Karussell">
+      <img class="foto is-active" src="spreewald-banner.jpg" alt="Grüne Flusslandschaft unter blauem Himmel" aria-hidden="false">
+      <img class="foto" src="naturpark-see.png" alt="Blick auf einen See inmitten einer Waldlandschaft" aria-hidden="true">
+      <img class="foto" src="naturpark-duene.png" alt="Sanddüne mit Kiefern und Sträuchern" aria-hidden="true">
+      <img class="foto" src="naturpark-fluss.png" alt="Boote auf einem von Bäumen gesäumten Fluss" aria-hidden="true">
+      <button class="carousel-arrow prev" type="button" aria-label="Vorheriges Bild">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
+      </button>
+      <button class="carousel-arrow next" type="button" aria-label="Nächstes Bild">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
+      <span class="sr-only carousel-status" aria-live="polite" aria-atomic="true">Bild 1 von 4</span>
+    </section>
+    <svg class="welle" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="rgb(16,127,64)" d="M0,94.8 C48.0,96.3 192.0,110.8 288.0,103.3 C384.0,95.8 480.0,56.2 576.0,49.9 C672.0,43.5 768.0,58.7 864.0,65.3 C960.0,71.8 1056.0,83.9 1152.0,89.2 C1248.0,94.4 1392.0,95.5 1440.0,96.8 L1440,320 L0,320 Z"/>
+      <path fill="rgb(80,169,111)" d="M0,166.9 C48.0,172.7 192.0,202.8 288.0,201.3 C384.0,199.8 480.0,168.7 576.0,157.8 C672.0,147.0 768.0,137.2 864.0,136.2 C960.0,135.1 1056.0,140.7 1152.0,151.5 C1248.0,162.4 1392.0,193.0 1440.0,201.3 L1440,320 L0,320 Z"/>
+      <path fill="rgb(144,212,158)" d="M0,239.0 C48.0,249.1 192.0,294.8 288.0,299.3 C384.0,303.7 480.0,261.1 576.0,265.8 C672.0,270.4 768.0,335.7 864.0,327.1 C960.0,318.4 1056.0,217.4 1152.0,213.9 C1248.0,210.3 1392.0,290.5 1440.0,305.8 L1440,320 L0,320 Z"/>
+          <path class="wave-background-transition" fill="rgb(208,254,205)" d="M0,274 C120,251 210,288 360,276 C510,264 570,238 720,257 C870,276 960,299 1110,279 C1260,259 1350,252 1440,270 L1440,320 L0,320 Z"/>    </svg>
+    <h1>Naturpark Dahme-Spreewald</h1>
+    <section class="tabs-section" aria-label="Themen entdecken">
+      <div class="tabs" role="tablist" aria-label="Themen des Naturparks">
+        <button class="tab" type="button" role="tab" id="tab-naturpark" aria-controls="panel-naturpark" aria-selected="true">Naturpark</button>
+        <button class="tab" type="button" role="tab" id="tab-erleben" aria-controls="panel-erleben" aria-selected="false" tabindex="-1">Erleben und Lernen</button>
+        <button class="tab" type="button" role="tab" id="tab-leben" aria-controls="panel-leben" aria-selected="false" tabindex="-1">Hier leben</button>
+        <button class="tab" type="button" role="tab" id="tab-auftrag" aria-controls="panel-auftrag" aria-selected="false" tabindex="-1">Unser Auftrag</button>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-naturpark" aria-labelledby="tab-naturpark" tabindex="0">
+        <div class="park-overview">
+  <figure class="park-map">
+    <a class="map-preview" href="naturpark-uebersichtskarte.pdf" target="_blank" rel="noopener" aria-label="Übersichtskarte als PDF groß öffnen"><img src="naturpark-karte.png" alt="Übersichtskarte des Naturparks Dahme-Heideseen mit Orten, Seen und Naturparkgrenze" loading="lazy"></a>
+    <figcaption>Quelle: Naturpark Dahme-Heideseen · <a href="https://www.dahme-heideseen-naturpark.de/fileadmin/user_upload/PDF/Dahme-Heideseen/Uebersichtskarte_Naturpark_Dahme-Heideseen.pdf" target="_blank" rel="noopener">Offizielle Übersichtskarte (PDF)</a></figcaption>
+    <img class="map-landscape" src="naturpark-fluss.png" alt="Boote auf einem von grünen Bäumen gesäumten Fluss" loading="lazy">
+    <nav class="route-links" aria-label="Wanderwege und Radwege">
+      <a class="route-card" href="https://www.dahme-heideseen-naturpark.de/erleben-lernen/aktiv-in-der-natur/wandern/" target="_blank" rel="noopener"><span><strong>Wanderwege</strong><small>Zu Fuß die Natur entdecken</small></span><span aria-hidden="true">↗</span></a>
+      <a class="route-card" href="https://www.dahme-heideseen-naturpark.de/erleben-lernen/aktiv-in-der-natur/rad-fahren/" target="_blank" rel="noopener"><span><strong>Radwege</strong><small>Die Region mit dem Rad erkunden</small></span><span aria-hidden="true">↗</span></a>
+    </nav>
+  </figure>
+  <div class="park-intro">
+    <p class="eyebrow">Dein Überblick über die Region</p>
+    <h2>Willkommen im Naturpark Dahme-Heideseen</h2>
+    <p>Wo liegt dein nächstes Ausflugsziel? Entdecke auf der Karte die Orte, Seen und die Grenzen des Naturparks und verschaffe dir einen Überblick über die Region.</p>
+    <p>Ob du einen Ausflug planst oder deine Umgebung näher kennenlernen möchtest: Hier beginnt deine Entdeckungstour.</p>
+    <a class="map-link" href="naturpark-uebersichtskarte.pdf" target="_blank" rel="noopener">Karte groß öffnen ↗</a>
+    <a class="seenland-card" href="https://www.dahme-seenland.de/" target="_blank" rel="noopener">
+      <span class="seenland-label">Ausflugstipp</span>
+      <strong>Lust auf Wasser und Natur?</strong>
+      <span>Besuchen Sie jetzt Dahme-Seenland <span aria-hidden="true">↗</span></span>
+    </a>
+    <a class="seenland-logo" href="https://www.dahme-seenland.de/" target="_blank" rel="noopener" aria-label="Dahme-Seenland besuchen">
+      <img src="logo-dahme-seenland.svg" alt="Dahme-Seenland" loading="lazy">
+    </a>
+  </div>
+</div>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-erleben" aria-labelledby="tab-erleben" tabindex="0" hidden>
+        <h2>Erleben und Lernen</h2><p>Draußen unterwegs sein, beobachten und Neues über die Natur lernen.</p>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-leben" aria-labelledby="tab-leben" tabindex="0" hidden>
+        <h2>Hier leben</h2><p>Raum für Geschichten über die Menschen, die Orte und das Leben in der Region.</p>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-auftrag" aria-labelledby="tab-auftrag" tabindex="0" hidden>
+        <h2>Unser Auftrag</h2><p>Hier ist Platz für die Ziele und Aufgaben des Naturparks.</p>
+      </div>
+    </section>
+    <section class="tips-section" aria-labelledby="tips-heading">
+      <h2 id="tips-heading">Tipps und Erlebnisse</h2>
+      <div class="topic-filters" role="group" aria-label="Tipps nach Thema filtern">
+        <button type="button" class="topic-filter" data-topic="Alle Themen" aria-pressed="true">Alle Themen</button>
+        <button type="button" class="topic-filter" data-topic="Veranstaltungen" aria-pressed="false">Veranstaltungen</button>
+        <button type="button" class="topic-filter" data-topic="Ausflugsziele und Erlebnisse" aria-pressed="false">Ausflugsziele und Erlebnisse</button>
+        <button type="button" class="topic-filter" data-topic="Routen und Touren" aria-pressed="false">Routen und Touren</button>
+        <button type="button" class="topic-filter" data-topic="Regionale Spezialitäten" aria-pressed="false">Regionale Spezialitäten</button>
+        <button type="button" class="topic-filter" data-topic="Meldungen" aria-pressed="false">Meldungen</button>
+        <button type="button" class="topic-filter" data-topic="Tiere" aria-pressed="false">Tiere</button>
+        <button type="button" class="topic-filter" data-topic="Pflanzen" aria-pressed="false">Pflanzen</button>
+      </div>
+      <div class="topic-content">
+        <h3 class="topic-title">Alle Themen</h3>
+        <p class="topic-empty" role="status">Hier ist Platz für Tipps und Erlebnisse aus dem Naturpark. Die Beiträge ergänzen wir als Nächstes.</p>
+        <div class="event-grid" aria-label="Veranstaltungen"></div>
+      </div>
+      <template id="event-card-template">
+        <button type="button" class="event-card" aria-haspopup="dialog">
+          <span class="event-image-wrap"><img class="event-image" alt="" loading="lazy"></span>
+          <span class="event-card-body">
+            <span class="event-meta"></span>
+            <strong class="event-title"></strong>
+            <span class="event-summary"></span>
+            <span class="event-more">Mehr erfahren <span aria-hidden="true">↗</span></span>
+          </span>
+        </button>
+      </template>
+      <dialog class="event-dialog" aria-labelledby="event-dialog-title">
+        <div class="dialog-scroll">
+        <form method="dialog"><button class="event-close" aria-label="Veranstaltungsdetails schließen">Schließen ×</button></form>
+        <img class="event-dialog-image" alt="">
+        <div class="event-dialog-body">
+          <p class="event-image-credit" hidden></p>
+          <p class="event-image-links" hidden><a class="image-source-link" target="_blank" rel="noopener">Bildquelle</a> · <a class="image-license-link" target="_blank" rel="noopener">Bildlizenz</a></p>
+          <p class="event-dialog-meta"></p>
+          <h2 id="event-dialog-title"></h2>
+          <p class="event-dialog-description"></p>
+          <button class="event-register map-link" type="button">Zur Anmeldung</button>
+          <a class="event-contact map-link" target="_blank" rel="noopener" hidden>Kontakt zur Veranstaltung ↗</a>
+        </div>
+      
+        </div>
+      </dialog>
+    </section>
+  </main>
+  <dialog class="registration-dialog" aria-labelledby="registration-heading">
+        <div class="dialog-scroll">
+    <form method="dialog" class="registration-close-row"><button class="event-close" aria-label="Anmeldefenster schließen">Schließen ×</button></form>
+    <div class="registration-body">
+      <h2 id="registration-heading">Zur Veranstaltung anmelden</h2>
+      <p class="registration-event"></p>
+      <p class="registration-notice" id="registration-notice">Die Online-Anmeldung ist noch nicht freigeschaltet. Dieses Formular ist eine Vorschau; es werden keine Daten versendet.</p>
+      <form class="registration-form" aria-describedby="registration-notice">
+        <label>Ihr Name <span aria-hidden="true">*</span><input name="name" autocomplete="name" required maxlength="120"></label>
+        <label>E-Mail-Adresse <span aria-hidden="true">*</span><input name="email" type="email" autocomplete="email" required maxlength="254"></label>
+        <label>Anzahl der Personen <span aria-hidden="true">*</span><input name="participants" type="number" min="1" max="30" value="1" required></label>
+        <label>Nachricht (optional)<textarea name="message" rows="3" maxlength="2000"></textarea></label>
+        <p class="registration-required">* Pflichtfelder</p>
+        <button class="map-link registration-submit" type="submit" disabled>Anmeldung noch nicht verfügbar</button>
+      </form>
+    </div>
+  
+        </div>
+      </dialog>
+  <script>
+    const carousel = document.querySelector('.carousel');
+    const slides = Array.from(carousel.querySelectorAll('.foto'));
+    let slideIndex = 0;
+    function changeSlide(direction) {
+      slides[slideIndex].classList.remove('is-active');
+      slides[slideIndex].setAttribute('aria-hidden', 'true');
+      slideIndex = (slideIndex + direction + slides.length) % slides.length;
+      slides[slideIndex].classList.add('is-active');
+      slides[slideIndex].setAttribute('aria-hidden', 'false');
+      carousel.querySelector('.carousel-status').textContent = `Bild ${slideIndex + 1} von ${slides.length}`;
+    }
+    carousel.querySelector('.prev').addEventListener('click', () => changeSlide(-1));
+    carousel.querySelector('.next').addEventListener('click', () => changeSlide(1));
+    carousel.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        changeSlide(event.key === 'ArrowRight' ? 1 : -1);
+      }
+    });
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    function selectTab(selected) {
+      tabs.forEach(tab => {
+        const active = tab === selected;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        document.getElementById(tab.getAttribute('aria-controls')).hidden = !active;
+      });
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectTab(tab));
+      tab.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        if (event.key === 'Home') next = 0;
+        if (event.key === 'End') next = tabs.length - 1;
+        if (next === undefined) return;
+        event.preventDefault();
+        selectTab(tabs[next]);
+        tabs[next].focus();
+      });
+    });
+    // Die echten Veranstaltungen ergänzen wir einzeln mit Aarons Angaben.
+    const events = [
+  {
+    "title": "Mitwandern 2026",
+    "date": "13.01.–28.11.2026",
+    "location": "Naturpark Dahme-Heideseen",
+    "image": "naturpark-see.png",
+    "imageAlt": "Blick auf einen See in einer Waldlandschaft – Symbolbild",
+    "summary": "Gemeinsam Brandenburgs Natur entdecken: geführte Wanderungen durch Wälder und an Seen. Mit Touren, Treffpunkten und Hinweisen zur Anmeldung.",
+    "description": "Anlässlich des Tages der Parke bietet der Berliner Wanderverband e.V. geführte Wanderungen durch Brandenburger Naturlandschaften. \r\n\r\nDer Tag der Parke findet am 24. Mai statt und feiert die Gründung des ersten Nationalparks in Europa vor über 100 Jahren. Er hebt die gesetzliche Unterstützung vieler weiterer geschützter Landschaften hervor, die seitdem entstanden sind. In Brandenburg gibt es mittlerweile 11 Naturparke, drei Biosphärenreservate und einen Nationalpark, die eine beeindruckende Vielfalt an ökologischen und kulturellen Besonderheiten bieten.\r\n\r\nZiel des Wandertages und des Europäischen Tags der Parke ist es, den Menschen die Möglichkeit zu geben, die Natur hautnah zu erleben und den Wert intakter Ökosysteme zu erkennen.\r\n\r\nDie Touren werden von erfahrenen Wanderleiterinnen und Wanderleitern des Berliner Wanderverbandes sowie von Fachleuten aus den Naturlandschaften begleitet. So ist nicht nur der Genuss der Natur garantiert, sondern auch ein lehrreicher und unterhaltsamer Tag.\r\n\r\nDie Wanderungen führen durch abwechslungsreiche Landschaften, vorbei an idyllischen Seen und durch weitläufige Wälder. Ob gemütliche Spaziergänge oder anspruchsvollere Touren – für jeden Wanderfreund ist etwas dabei. Zudem sind die Wanderungen so organisiert, dass sie bequem mit öffentlichen Verkehrsmitteln erreicht werden können.\r\n\r\nDie Teilnahme an den geführten Wanderungen bietet eine einmalige Gelegenheit, die Naturschönheiten Brandenburgs hautnah zu erleben und sich mit den Zielen und der Bedeutung der Naturschutzgebiete vertraut zu machen.\r\n\r\nWeitere Informationen zu den einzelnen Veranstaltungen sind auf www.natur-brandenburg.de sowie im Berlin-Brandenburger Wanderplan (Schutzgebühr 3 Euro) erhältlich.\n\nWanderungen durch den Naturpark Dahme-Heideseen\r\n\r\nSa 7. Februar | Briesensee und Lebersee | 10 Uhr Neuendorf, Abzweig (Bus) | Wanderverein Fontane ´91 e.V. | 23 km\r\n\r\nAnmeldung: Wanderverein Fontane '91 e.V. Berlin | Egon Poppe\n\nSo 1. März | Seenkette bei Wendisch Rietz | 9:10 Uhr Bf Wendisch Rietz | Eifelverein Berlin e.V. | 21 km\r\n\r\nEifelverein Berlin – STARTSEITE bzw. Eifelverein Berlin – WANDERN  | Eveline Zabel\n\nDo 14. Mai | Drei-Seen-Rundwanderung | 10:30 Uhr Bf Bestensee | Märkischer Wanderbund Fläming-Havelland e.V. | 10 km\r\n\r\nTag des Wanderns: „Drei Seen Rundwanderung “ entlang des Todnitzsees sowie des kleinen und großen Tonteiches – Märkischer Wanderbund Fläming-Havelland e.V.  bzw. Märkischer Wanderbund Fläming-Havelland e.V.  | Sonja Betker\n\nSa 13. Juni | Paddeln auf der Dahme | 9:54 Uhr Märkisch Buchholz, Markt | Eifelverein Berlin e.V | 14 km\r\n\r\nEifelverein Berlin – STARTSEITE bzw. Eifelverein Berlin – WANDERN  | Renate Bittrich\n\nSa 20. Juni | Oderin | 8:45 Uhr Bf Oderin | Cöpenicker Wanderfreunde | 16 km\r\n\r\nStart | Cöpenicker Wanderfreunde e.V. bzw. Wanderprogramm | Cöpenicker Wanderfreunde e.V.  | Kerstin Deutschland \n\nSo 28. Juni | Groß Schauener Seenkette | 8:57 Uhr Bf Storkow | Eifelverein Berlin e.V | 24 km\r\n\r\nEifelverein Berlin – STARTSEITE bzw. Eifelverein Berlin – WANDERN  | Eveline Zabel\n\nDo 30. Juli | 9 Seen auf dem 66-Seen Weg | 10:10 Uhr Bf Wendisch Rietz | Eifelverein Berlin e.V. | 19 km\r\n\r\nEifelverein Berlin – STARTSEITE bzw. Eifelverein Berlin – WANDERN  | Renate Bittrich\n\nDi 11. August | Von Märkisch Buchholz nach Prieros | 9:57 Uhr Bus-Hst Märkisch Buchholz | SV Empor Berlin e.V. | 15 km\r\n\r\nSV Empor Berlin e.V. » Die Abteilung Wandern  | Eckehard Heiber\n\nSa 15. August | Von Hohenbrück nach Wendisch Rietz | 10:25 Uhr Hohenbrück | Berliner Wanderclub e.V. | 23 km\r\n\r\nBWC_info  | Katerina Mame\n\nSo 30. August | Von Hohenbrück nach Halbe | 10:25 Uhr Hohenbrück | Berliner Wanderclub e.V. | 26 km\r\n\r\nBWC_info  | Volkmar Schmidt \n\nSo 6. September | Von Wendisch Rietz nach Storkow | 10:10 Uhr Bf Wendisch Rietz | Eifelverein Berlin e.V. | 16 km\r\n\r\nEifelverein Berlin – STARTSEITE bzw. Eifelverein Berlin – WANDERN  |  Edith Müller\n\nSo 6. September | Von Halbe nach Wünsdorf | 9:37 Uhr Bf Halbe | Berliner Wanderclub e.V. | 29 km\r\n\r\nBWC_info  | Volkmar Schmidt \n\nSo 22. November | Runde um Groß Köris | 9:33 Uhr Bf Groß Köris | Eifelverein Berlin e.V. | 17 km\r\n\r\nEifelverein Berlin – STARTSEITE bzw. Eifelverein Berlin – WANDERN  |  Renate Bittrich\n\nSa 28. November | Bestensee & Pätzer Vordersee | 9:00 Uhr Bf Bestensee | LG Mauerweg Berlin e.V. | 28 km\r\n\r\nLGM-Wandergruppe – LG Mauerweg Berlin e.V.  |  Heribert Schregel\n\nBitte melden Sie sich für die Wanderungen vorab bei den jeweiligen AnsprechpartnerInnen an."
+  },
+  {
+    "title": "Naturschutz-Abend",
+    "date": "15.10.2026 · 16:30–20:00 Uhr",
+    "location": "Kaiserbahnhof Halbe",
+    "image": "naturschutz-abend-halbe.jpg",
+    "imageAlt": "Veranstaltung im Kaiserbahnhof Halbe",
+    "imageCredit": "Foto: Carsten Preuß · Veranstaltung im Kaiserbahnhof Halbe",
+    "summary": "Wildkatzen, Wölfe und besondere Tierbeobachtungen: ein Abend mit Tierfotografie, Vorträgen und der Vorstellung des JahreBuchs 2027.",
+    "description": "15. Oktober 2026 · 16:30–20:00 Uhr\n\nIm Naturpark Dahme-Heideseen sind faszinierende Tierarten beheimatet: Diese wollen wir beim Naturschutztag am 15. Oktober näher kennenlernen. Es geht um Wildkatzen, Wölfe und weitere bemerkenswerte Arten. Fotograf Robert Hauschild präsentiert stimmungsvolle Tier-Fotos. NABU Dahmeland e. V. und Naturpark-Verwaltung laden gemeinsam in den Kaiserbahnhof Halbe ein. Vorgestellt wird auch das JahreBuch.\n\nProgramm\n\n16:30 Uhr: Führung durch den Kaiserbahnhof Halbe\n\nAb 18 Uhr: Vorstellung JahreBuch 2027\n• Tierbeobachtungen (Robert Hauschild)\n• Um ein Haar – im Reich der Wildkatze (Carsten Preuß)\n• Kunst und Emotionen – Wie Kunst unsere Wahrnehmung von Natur verändern kann (Jana Malin)\n\nDas JahreBuch 2027 kann bei der Veranstaltung zum Preis von sieben Euro erworben werden. Es ist ab sofort auch in der NABU-Geschäftsstelle in Prieros, im regionalen Buchhandel und weiteren regionalen Verkaufsstellen erhältlich.\n\nDas JahreBuch präsentiert zahlreiche Geschichten und Erlebnisse rund um den Naturpark Dahme-Heideseen, Naturschutz und bedeutende Lebensräume. Autoren und Autorinnen berichten über Landschaftspflege, eigene Nachforschungen und so mancher Bericht über Begegnungen mit Tieren und Beobachtungen stimmt nachdenklich.\n\nVeranstaltungsort\nKaiserbahnhof Halbe\nBahnhofstraße 31\n15757 Halbe\n\nKontakt\nTelefon: 033768 969 14\nAstrid.Osenbrueck@lfu.brandenburg.de",
+    "contactUrl": "https://www.dahme-heideseen-naturpark.de/service/kontakt/?tx_snmlugv_pi6%5Bcontact%5D=25354&tx_snmlugv_pi6%5Bdate%5D=1&cHash=29f0557c91a96c8a2ef4dcfd8f74ad96"
+  },
+  {
+    "title": "Tag des Pilzes in Hammer",
+    "date": "Sa., 17.10.2026 · 09:30–15:00 Uhr",
+    "location": "Forsthaus Hammer",
+    "image": "tag-des-pilzes.jpg",
+    "imageAlt": "Pilzberatung beim Tag des Pilzes",
+    "imageCredit": "Foto: Teresa Zeuner · Pilzberatung",
+    "summary": "Pilzwanderungen, kreative Angebote und kostenlose Pilzberatung: ein herbstlicher Entdeckungstag für Naturfans und Familien.",
+    "description": "Samstag, 17. Oktober 2026 · 09:30–15:00 Uhr\n\nEin Tag rund um Pilze: Naturpark, VHS Dahme-Spreewald, NABU Dahmeland und KiEZ Frauensee laden zu Wanderungen, kreativen Angeboten und kostenloser Pilzberatung mit Dr. Ewald Gerhardt ein. Eigene gesammelte Pilze können zur Bestimmung mitgebracht werden.\n\nProgramm\n09:30 Uhr: Pilzwanderung mit Susanne Grunzig\n10:00 und 13:00 Uhr: Pilze entdecken mit Moritz Schmid\n10:30 Uhr: Familienwanderung mit Markus Jeschar\n11:00–15:00 Uhr: Pilzspuren auf Papier, herbstliches Basteln und Pilzausstellung\n12:00–15:00 Uhr: Pilzberatung mit Dr. Ewald Gerhardt\nAußerdem: Infostände und Wildbratwürste vom Grill.\n\nFür die Wanderungen und das Druckangebot ist eine Anmeldung bei der VHS erforderlich. Weitere Angaben zur Anmeldung folgen.\n\nOrt\nForsthaus Hammer, an der B 179\n15746 Groß Köris, OT Hammer\n\nKontakt: Teresa Zeuner\nTelefon: 033768-9690\nE-Mail: Teresa.Zeuner@lfu.brandenburg.de",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/veranstaltungen/tag-des-pilzes-in-hammer-21296/?tx_snmlugv_pi101%5Baction%5D=show&cHash=b339029ef45e88e5b05416e58f717d05"
+  },
+  {
+    "title": "Fungus Print – Drucken mit Pilzen",
+    "date": "Sa., 17.10.2026 · 11:00–15:00 Uhr",
+    "location": "Forstbetrieb Hammer",
+    "image": "fungus-print.jpg",
+    "imageAlt": "Künstlerischer Pilzdruck von Inka Lumer",
+    "imageCredit": "Bild: © Inka Lumer",
+    "imageFit": "contain",
+    "summary": "Pilze werden zu Kunst: Gestalte mit Inka Lumers Druckverfahren eigene Papierwerke und entdecke Pilzarten auf kreative Weise.",
+    "description": "Samstag, 17. Oktober 2026 · 11:00–15:00 Uhr\n\nMit einem Druckverfahren von Inka Lumer werden Pilze zu Motiven für individuelle Papierkunst. Auch wenig beachtete Arten lassen sich dabei kreativ erkunden und näher kennenlernen. Wer möchte, ergänzt die Drucke um lateinische Artnamen und gestaltet eine persönliche Sammlung.\n\nBitte mitbringen\nPilze verschiedener Arten sind ausdrücklich willkommen.\n\nKosten\nFür das Material wird vor Ort ein kleiner Unkostenbeitrag erhoben. Ein genauer Betrag ist auf der Naturparkseite nicht angegeben.\n\nVeranstaltungsort\nForstbetrieb Hammer\n\nVeranstalter\nVolkshochschule Dahme-Spreewald\nSchulweg 1b, 15711 Königs Wusterhausen\nDie Anschrift gehört zum Veranstalter; der Kurs findet in Hammer statt.\n\nFür Informationen zur Anmeldung ist die Volkshochschule Dahme-Spreewald zuständig.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/veranstaltungen/fungus-print-drucken-mit-pilzen-new66fbe29d230c4078195078/?tx_snmlugv_pi101%5Baction%5D=show&cHash=b339029ef45e88e5b05416e58f717d05"
+  },
+  {
+    "title": "Aktive Familie: Pflegeeinsatz im Glinnitzmoor",
+    "date": "Di., 20.10.2026 · 10:00–12:00 Uhr",
+    "location": "Limsdorf · Parkplatz am Grubensee",
+    "image": "pflegeeinsatz-glinnitzmoor.jpg",
+    "imageAlt": "Naturwacht-Ranger Hannes Hause",
+    "imageCredit": "Foto: © BIZ Burg Storkow",
+    "summary": "Als Familie für die Natur anpacken: Gemeinsam mit der Naturwacht seltene Lebensräume im Moor pflegen. Kostenlos, mit Anmeldung.",
+    "description": "Dienstag, 20. Oktober 2026 · 10:00–12:00 Uhr\n\nGemeinsam mit den Naturwacht-Rangern Hannes und Marian hilft die ganze Familie bei der Pflege des Glinnitzmoors. Durch das Entfernen kleiner Büsche werden die Lebensräume seltener Pflanzen und Tiere erhalten.\n\nMitmachen\nDer freiwillige Einsatz richtet sich an Familien sowie Interessierte jeden Alters. Bitte Arbeitssachen mitbringen. Die Aktion dauert ungefähr zwei Stunden und ist kostenlos.\n\nTreffpunkt\nParkplatz am Grubensee an der L42 bei Limsdorf.\n\nAnmeldung\nE-Mail: besucherzentrum@storkow.de\nTelefon: 033678 73108\n\nVeranstalter\nBesucherzentrum des Naturparks Dahme-Heideseen\nWeitere Telefonnummer: 033678 73228",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/veranstaltungen/aktive-familie-im-naturpark-pflegeeinsatz-im-glinnitzmoor-mit-der-naturwacht-new6ab0ea92780c6690255383/?tx_snmlugv_pi101%5Baction%5D=show&cHash=b339029ef45e88e5b05416e58f717d05"
+  },
+  {
+    "title": "Escape Game – Mission Klimaschutz",
+    "date": "Mi., 21.10.2026 · 10:00–16:00 Uhr",
+    "location": "Burg Storkow",
+    "image": "escape-game-klimaschutz.jpg",
+    "imageAlt": "Escape Game im Besucherzentrum Burg Storkow",
+    "imageCredit": "Foto: © BIZ Burg Storkow",
+    "summary": "Vier rätselhafte Kisten, geheime Codes und eine gemeinsame Mission: Klimaschutz spielerisch entdecken. Für Gruppen, auch mit Kindern ab zwölf Jahren.",
+    "description": "Mittwoch, 21. Oktober 2026 · 10:00–16:00 Uhr\n\nGemeinsam rätseln für den Klimaschutz: Vier geheimnisvolle Kisten warten auf Teams, die Hinweise kombinieren und Codes lösen. Das Spiel verbindet die Aufgaben mit Nachhaltigkeitsziel 13 der Agenda 2030.\n\nTeilnahme\nAuch Gruppen mit Kindern ab zwölf Jahren können mitspielen. Eine vorherige Anmeldung ist erforderlich. Benötigt werden Name, Anzahl und Alter der Mitspielenden, Telefonnummer sowie Wunsch- und gegebenenfalls Alternativtermin.\n\nOrganisation\nDie Vergabe hängt von Raum und Betreuung ab. Termine sind innerhalb der Burgöffnungszeiten von 10–17 Uhr möglich. Bei Verhinderung bitte rechtzeitig absagen. Mobiltelefone werden vor Spielbeginn sicher verwahrt.\n\nKosten\nDas Spiel kostet nichts zusätzlich; der Burgeintritt ist zu zahlen. Darin enthalten ist eine Tageskarte für die Ausstellungen.\n\nOrt\nBurg Storkow, Schloßstraße 6\n15859 Storkow (Mark)\n\nVeranstalter: Besucherzentrum des Naturparks in Kooperation mit Engagement Global, Außenstelle Berlin.\nKontakt: besucherzentrum@storkow.de · 033678 73108",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/veranstaltungen/escape-game-mission-klimaschutz-die-zeit-laeuft-new6ab0e67d344b1108858466-1/?tx_snmlugv_pi101%5Baction%5D=show&cHash=b339029ef45e88e5b05416e58f717d05"
+  },
+  {
+    "title": "Farben aus der Natur",
+    "date": "21. und 28.10.2026 · 15:00–18:00 Uhr",
+    "location": "Naturschutzzentrum Prieros",
+    "image": "farben-aus-der-natur.jpg",
+    "imageAlt": "Veranstaltungsflyer zum Workshop Farben aus der Natur",
+    "imageCredit": "Veranstaltungsflyer · bereitgestellt auf der Naturpark-Website",
+    "imageFit": "contain",
+    "summary": "Mit Pflanzenfarben und mineralischen Pigmenten experimentieren: ein kreativer Workshop mit Farbgeschichte, Kunst und eigenen Versuchen.",
+    "description": "21. und 28. Oktober 2026 · jeweils 15:00–18:00 Uhr\n\nEin kreativer Workshop rund um natürliche Farbstoffe aus Pflanzen und Mineralien. Mit Neugier und Freude an Farben erkundet ihr ihre Geschichte und experimentiert mit Pigmenten, Bindemitteln und verschiedenen Untergründen.\n\nTeilnahme\nMaximal zehn Personen. Weitere Voraussetzungen nennt die Ankündigung außer Farbfreude und Neugier nicht. Ein Preis ist dort nicht angegeben.\n\nOrt\nNaturschutzzentrum Prieros\nArnold-Breithor-Straße 8\n15754 Heidesee\n\nAnmeldung und Auskunft\ninfo@traumwerker.de\nTelefon Naturschutzzentrum: 033768 9690",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/veranstaltungen/farben-aus-der-natur-new6ac8ad15ebd21701562157/?tx_snmlugv_pi101%5Baction%5D=show&cHash=b339029ef45e88e5b05416e58f717d05"
+  },
+  {
+    "title": "Entdecker-Herbstferien: Taschenmesserführerschein",
+    "date": "Mi., 28.10.2026 · 10:00–12:00 Uhr",
+    "location": "Burg Storkow",
+    "image": "taschenmesserfuehrerschein.jpg",
+    "imageAlt": "Ferienangebot Taschenmesserführerschein der Burg Storkow",
+    "imageCredit": "Foto: © BIZ Burg Storkow",
+    "summary": "Sicher schnitzen lernen und eigene Stock-Kunstwerke gestalten: Ferienprogramm für Kinder von sechs bis zwölf Jahren. Teilnahme: vier Euro.",
+    "description": "Mittwoch, 28. Oktober 2026 · 10:00–12:00 Uhr\n\nIm Ferienprogramm vermittelt Kräuterpädagogin Regina Kindern den sicheren Umgang mit einem Taschenmesser. Anschließend entstehen eigene geschnitzte Werke aus Stöcken.\n\nFür wen?\nKinder von sechs bis zwölf Jahren. Das Angebot findet ohne Eltern und Großeltern statt.\n\nKosten\nVier Euro pro Kind.\n\nAnmeldung\nSpätestens einen Tag vor dem Termin, also bis 27. Oktober 2026.\nTelefon: 033678 73108\nE-Mail: besucherzentrum@storkow.de\n\nOrt und Veranstalter\nBurg Storkow\nSchloßstraße 6\n15859 Storkow (Mark)",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/veranstaltungen/entdecker-herbstferien-taschenmesserfuehrerschein-new6ab0eb7a2120b809548266/?tx_snmlugv_pi101%5Baction%5D=show&cHash=b339029ef45e88e5b05416e58f717d05"
+  },
+  {
+    "title": "Escape Game – Mission Klimaschutz",
+    "date": "Mi., 28.10.2026 · 10:00–16:00 Uhr",
+    "location": "Burg Storkow",
+    "image": "escape-game-klimaschutz.jpg",
+    "imageAlt": "Escape Game im Besucherzentrum Burg Storkow",
+    "imageCredit": "Foto: © BIZ Burg Storkow",
+    "summary": "Vier rätselhafte Kisten, geheime Codes und eine gemeinsame Mission: Klimaschutz spielerisch entdecken. Für Gruppen, auch mit Kindern ab zwölf Jahren.",
+    "description": "Mittwoch, 28. Oktober 2026 · 10:00–16:00 Uhr\n\nGemeinsam rätseln für den Klimaschutz: Vier geheimnisvolle Kisten warten auf Teams, die Hinweise kombinieren und Codes lösen. Das Spiel verbindet die Aufgaben mit Nachhaltigkeitsziel 13 der Agenda 2030.\n\nTeilnahme\nAuch Gruppen mit Kindern ab zwölf Jahren können mitspielen. Eine vorherige Anmeldung ist erforderlich. Benötigt werden Name, Anzahl und Alter der Mitspielenden, Telefonnummer sowie Wunsch- und gegebenenfalls Alternativtermin.\n\nOrganisation\nDie Vergabe hängt von Raum und Betreuung ab. Termine sind innerhalb der Burgöffnungszeiten von 10–17 Uhr möglich. Bei Verhinderung bitte rechtzeitig absagen. Mobiltelefone werden vor Spielbeginn sicher verwahrt.\n\nKosten\nDas Spiel kostet nichts zusätzlich; der Burgeintritt ist zu zahlen. Darin enthalten ist eine Tageskarte für die Ausstellungen.\n\nOrt\nBurg Storkow, Schloßstraße 6\n15859 Storkow (Mark)\n\nVeranstalter: Besucherzentrum des Naturparks in Kooperation mit Engagement Global, Außenstelle Berlin.\nKontakt: besucherzentrum@storkow.de · 033678 73108",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/veranstaltungen/escape-game-mission-klimaschutz-die-zeit-laeuft-new6ab0e67d344b1108858466-2/?tx_snmlugv_pi101%5Baction%5D=show&cHash=b339029ef45e88e5b05416e58f717d05"
+  },
+  {
+    "title": "Märkische Umfahrt",
+    "category": "Routen und Touren",
+    "date": "Kanutour · ca. 180 km",
+    "location": "Spree und Dahme",
+    "image": "maerkische-umfahrt.jpg",
+    "imageAlt": "Mit dem Kanu auf der Dahme",
+    "imageCredit": "Foto: Klaeber",
+    "summary": "Eine mehrtägige Kanurunde auf Spree und Dahme: Natur, kleine Städte und reizvolle Landgänge entdecken.",
+    "description": "Kanutour · ungefähr 180 Kilometer · etwa sieben bis elf Tage\n\nDie Rundtour verknüpft Spree, Dahme und ihre Verbindungsgewässer. Sie führt durch den Naturpark Dahme-Heideseen und das Biosphärenreservat Spreewald, vorbei an kleinen Orten, Wäldern und Wasserlandschaften.\n\nEinstieg und Landgänge\nMögliche Orte zum Beginnen oder Unterbrechen sind Erkner, Fürstenwalde, Beeskow, Märkisch Buchholz, Prieros und Königs Wusterhausen. Die benötigte Zeit richtet sich nach den Tagesetappen.\n\nUnterwegs entdecken\nNeben Eisvögeln, Libellen und Teichrosen bieten sich Landgänge zur Burg Beeskow, zu den Schlössern in Königs Wusterhausen und Fürstenwalde sowie zum Biogarten und Heimathaus in Prieros an.\n\nEinstieg in Prieros\nAnlegestelle an der Dorfaue\n15754 Heidesee, Ortsteil Prieros\n\nAuskunft\nTourismusverband Seenland Oder-Spree e.V.\nTelefon: 033631 868100\nE-Mail: info@seenland-os.de",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/routen-touren/maerkische-umfahrt/"
+  },
+  {
+    "title": "Dahmeradweg – Von der Mündung bis zur Quelle",
+    "category": "Routen und Touren",
+    "date": "Radroute · knapp 123 km",
+    "location": "Berlin-Köpenick bis zur Dahmequelle",
+    "image": "dahmeradweg.jpg",
+    "imageAlt": "Fahrradbrücke über die Dahme bei Dolgenbrodt",
+    "imageCredit": "Foto: Tourismusverband Dahme-Seen",
+    "summary": "Der Dahme auf zwei Rädern folgen: von Berlin-Köpenick durch zwei Naturparke bis zur Quelle bei Kolpien.",
+    "description": "Radroute · knapp 123 Kilometer\n\nVon der Mündung zurück zur Quelle: Der Dahmeradweg startet in Berlin-Köpenick, wo die Dahme in die Spree fließt. Die Strecke orientiert sich am Fluss und führt unter anderem durch Königs Wusterhausen, Märkisch Buchholz und Dahme.\n\nDie Route verbindet den Naturpark Dahme-Heideseen mit dem Naturpark Niederlausitzer Landrücken. Das Ziel liegt an der Dahmequelle bei Kolpien südlich von Dahme.\n\nStart\nBerlin-Köpenick\n\nZiel\nDahmequelle bei Kolpien\n\nAuskunft\nDahme-Seenland – Touristinformation\nTelefon: 03375 252025\nE-Mail: info@dahme-seen.de",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/routen-touren/dahmeradweg-von-der-muendung-bis-zur-quelle/"
+  },
+  {
+    "title": "Prieros – Vom Infopunkt zum Biogarten",
+    "category": "Routen und Touren",
+    "date": "Rundwanderung · ca. 2 km",
+    "location": "Prieros",
+    "image": "prieros-biogarten.jpg",
+    "imageAlt": "Blick auf Prieros",
+    "imageCredit": "Foto: Sonnenberg",
+    "summary": "Eine kurze Runde durch Prieros: vom Naturpark-Infopunkt über blühende Wiesen zum Biogarten und zurück.",
+    "description": "Rundwanderung · ungefähr zwei Kilometer\n\nVom Naturpark-Infopunkt in Prieros führt dieser kurze Rundweg zum Biogarten und über die Dorfstraße zurück. Die Tour wird für Familien, Schulklassen und Senioren aufgeführt.\n\nWegverlauf\nAn der Arnold-Breithor-Straße erinnert ein Maulbeerbaum neben der früheren Schule an die Seidenraupenzucht. Weiter geht es über „An der Lucke“ auf einen schmalen Weg mit der Markierung blauer Punkt auf weißem Grund bis zu den Prieroser Wiesen. Dort wachsen Trockenrasenpflanzen wie die Grasnelke.\n\nVom Biogarten führt die Runde an der Dorfstraße und am Tourismuszentrum vorbei wieder zum Infopunkt.\n\nStart und Ziel\nNaturpark-Infopunkt\nArnold-Breithor-Straße 8\n15754 Prieros\n\nAuskunft\nNaturparkverwaltung Dahme-Heideseen\nTelefon: 033768 9690\nE-Mail: np-dahme-heideseen@lfu.brandenburg.de",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/routen-touren/prieros-vom-infopunkt-zum-biogarten/"
+  },
+  {
+    "title": "Besucherzentrum Burg Storkow",
+    "category": "Ausflugsziele und Erlebnisse",
+    "date": "Ausstellung · Natur und Geschichte",
+    "location": "Storkow (Mark)",
+    "image": "besucherzentrum-burg-storkow.jpg",
+    "imageAlt": "Luftaufnahme der Burg Storkow",
+    "imageCredit": "Foto: André Emmerich",
+    "summary": "Eine Zeitreise von der Eiszeit bis heute: Natur- und Kulturgeschichte auf drei Ebenen in der historischen Burg entdecken.",
+    "description": "Natur- und Kulturgeschichte entdecken\n\nDas Besucherzentrum des Naturparks befindet sich in der Burg Storkow. Die Dauerausstellung „Mensch und Natur – eine Zeitreise“ führt auf drei Ebenen von der Eiszeit bis in die Gegenwart. Im Dachgeschoss erzählen historische Ansichten und Karten von der Geschichte der Burg. Die Touristinformation gibt Tipps für Ausflüge in die Umgebung.\n\nÖffnungszeiten laut Naturpark-Website\nApril–Oktober: täglich 10:00–17:00 Uhr\nNovember–März: täglich 11:00–16:00 Uhr\nLetzter Ausstellungseinlass eine Stunde vor Schließung.\n\nEintritt laut Naturpark-Website\nErwachsene: 4,50 Euro\nKinder bis sechs Jahre: frei\nSchüler bis 17 Jahre: 2 Euro\nGegebenenfalls vorhandene Sonderausstellungen sind enthalten.\n\nAdresse\nSchloßstraße 6, 15859 Storkow (Mark)\n\nKontakt\nTelefon: 033678 73108\nE-Mail: tourismus@storkow.de",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/info-ausstellung/besucherzentrum-burg-storkow-mark/"
+  },
+  {
+    "title": "Wasserturm Kehrigk",
+    "category": "Ausflugsziele und Erlebnisse",
+    "date": "Aussichtsturm · Saison März–September",
+    "location": "Kehrigk bei Storkow",
+    "image": "wasserturm-kehrigk.jpg",
+    "imageAlt": "Historischer Wasserturm in Kehrigk",
+    "imageCredit": "Foto: Archiv Naturpark Dahme-Heideseen",
+    "summary": "Über die Wendeltreppe zum Ausblick: Der historische Wasserturm eröffnet einen Blick auf Kehrigk und seine Wälder.",
+    "description": "Ein ehemaliger Wasserturm als Aussichtspunkt\n\nDer 1912 errichtete Turm in Kehrigk bietet nach dem Aufstieg über eine Wendeltreppe einen Blick auf das Dorf und die umliegenden Wälder.\n\nSaison und Öffnungszeiten laut Naturpark-Website\n1. März bis 30. September\nDienstag–Sonntag: 10:00–18:00 Uhr\nMontags geschlossen.\n\nDer veröffentlichte Öffnungszeitraum umfasst nicht die Monate Oktober bis Februar.\n\nAdresse\nKehrigker Dorfstraße\n15859 Storkow (Mark), Ortsteil Kehrigk",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/aktiv-in-der-natur/wasserturm-kehrigk/"
+  },
+  {
+    "title": "Waldwunderbar – Abschalten und Auftanken",
+    "category": "Ausflugsziele und Erlebnisse",
+    "date": "Naturerlebnis · April–November",
+    "location": "Dubrow bei Groß Köris",
+    "image": "waldwunderbar.png",
+    "imageAlt": "Naturerlebnis mit Waldwunderbar im Wald",
+    "imageCredit": "Bild: © Waldwunderbar",
+    "summary": "Eine bewusste Auszeit im Grünen: mit angeleiteten Übungen den Wald wahrnehmen und den Alltag für einen Moment hinter sich lassen.",
+    "description": "Waldbaden und Achtsamkeit in der Dubrow\n\nWaldwunderbar bietet angeleitete Naturerlebnisse mit Tim Kolbe an. Bei Übungen im Wald stehen bewusstes Wahrnehmen, Ruhe und eine Auszeit vom Alltag im Mittelpunkt.\n\nAngebotszeitraum\nApril bis November. Die konkreten Kurstermine und Preise sind beim Anbieter zu erfragen.\n\nRegion\nDubrow, Neubrück bei Groß Köris\n15746 Groß Köris\n\nKontakt\nTim Kolbe\nTelefon: 0170 9240487\nE-Mail: timkolbe@waldwunderbar.de",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/aktiv-in-der-natur/waldwunderbar-abschalten-auftanken-in-der-natur/"
+  },
+  {
+    "title": "Biber (Elbebiber)",
+    "category": "Tiere",
+    "date": "Säugetier",
+    "location": "Gewässer und Ufer",
+    "image": "tier-elbebiber.jpg",
+    "imageAlt": "Biber (Elbebiber)",
+    "imageCredit": "Biber im Sonnenschein (E. Laube)",
+    "summary": "Der Baumeister am Wasser: Mit Dämmen und Bauen gestaltet der Biber seinen Lebensraum.",
+    "description": "Der Baumeister am Wasser: Mit Dämmen und Bauen gestaltet der Biber seinen Lebensraum.\n\nAls Pflanzenfresser ernährt er sich von Kräutern, Blättern und Baumrinde. Seine Bautätigkeit kann neue Lebensräume für Amphibien und andere Wasserbewohner schaffen. Typische Spuren sind angenagte Stämme und gefällte Äste.\n\nLebensraum\nGewässer und Ufer\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/elbebiber/"
+  },
+  {
+    "title": "Fischotter",
+    "category": "Tiere",
+    "date": "Säugetier",
+    "location": "Seen, Flüsse und Bäche",
+    "image": "tier-fischotter.jpg",
+    "imageAlt": "Fischotter",
+    "imageCredit": "Fischotter (© Archiv BR Spreewald)",
+    "summary": "Ein scheuer Schwimmer, der vor allem in der Dämmerung und nachts unterwegs ist.",
+    "description": "Ein scheuer Schwimmer, der vor allem in der Dämmerung und nachts unterwegs ist.\n\nFischotter nutzen naturnahe Gewässer mit strukturreichen Ufern. Neben Fischen fressen sie unter anderem Amphibien und Wasserinsekten. Zusammenhängende Gewässer und sichere Querungen an Straßen sind für sie besonders wichtig.\n\nLebensraum\nSeen, Flüsse und Bäche\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/fischotter/"
+  },
+  {
+    "title": "Eisvogel",
+    "category": "Tiere",
+    "date": "Vogel",
+    "location": "Klare Gewässer mit Uferabbrüchen",
+    "image": "tier-eisvogel.jpg",
+    "imageAlt": "Eisvogel",
+    "imageCredit": "Eisvogel (E. Laube)",
+    "summary": "Türkisblau und orange: Der kleine Fischjäger ist ein auffälliger Bewohner der Gewässer.",
+    "description": "Türkisblau und orange: Der kleine Fischjäger ist ein auffälliger Bewohner der Gewässer.\n\nVon einer Sitzwarte stürzt er kopfüber ins Wasser und fängt kleine Fische mit dem Schnabel. Seine Brutröhre gräbt er in steile Ufer. Natürliche Ufer und sauberes Wasser erhalten seinen Lebensraum.\n\nLebensraum\nKlare Gewässer mit Uferabbrüchen\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/eisvogel/"
+  },
+  {
+    "title": "Graureiher",
+    "category": "Tiere",
+    "date": "Vogel",
+    "location": "Gewässer, Wiesen und Felder",
+    "image": "tier-graureiher.jpg",
+    "imageAlt": "Graureiher",
+    "imageCredit": "Graureiher im Flug (© Mathias Putze)",
+    "summary": "Geduldig steht der Graureiher am Wasser und wartet auf den richtigen Moment.",
+    "description": "Geduldig steht der Graureiher am Wasser und wartet auf den richtigen Moment.\n\nBeim langsamen Schreiten durch flaches Wasser erbeutet er Fische, Frösche und andere Kleintiere. Auch auf Wiesen sucht er Nahrung. Im Flug fällt der eingezogene Hals auf.\n\nLebensraum\nGewässer, Wiesen und Felder\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/graureiher/"
+  },
+  {
+    "title": "Seeadler",
+    "category": "Tiere",
+    "date": "Vogel",
+    "location": "Große Gewässer und alte Wälder",
+    "image": "tier-seeadler.jpg",
+    "imageAlt": "Seeadler",
+    "imageCredit": "Seeadler (© Sebastian Hennigs)",
+    "summary": "Ein imposanter Greifvogel über den Seen des Naturparks.",
+    "description": "Ein imposanter Greifvogel über den Seen des Naturparks.\n\nSeine Flügelspannweite kann bis etwa 2,40 Meter reichen. Fische und Wasservögel gehören zu seiner Nahrung. Für den Horst braucht er geeignete alte Bäume. Brutplätze reagieren empfindlich auf Störungen.\n\nLebensraum\nGroße Gewässer und alte Wälder\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/seeadler/"
+  },
+  {
+    "title": "Fischadler",
+    "category": "Tiere",
+    "date": "Vogel",
+    "location": "Fischreiche Seen und Flüsse",
+    "image": "tier-fischadler.jpg",
+    "imageAlt": "Fischadler",
+    "imageCredit": "Fischadler (Foto: Mathias Putze)",
+    "summary": "Mit den Füßen voran taucht der Fischadler nach seiner Beute.",
+    "description": "Mit den Füßen voran taucht der Fischadler nach seiner Beute.\n\nSeine Nahrung besteht vor allem aus Fischen. Horste liegen auf geeigneten Baumkronen oder auch auf Strommasten. Der Zugvogel verbringt den Winter in wärmeren Regionen und kehrt im Frühjahr zurück.\n\nLebensraum\nFischreiche Seen und Flüsse\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/fischadler/"
+  },
+  {
+    "title": "Kranich",
+    "category": "Tiere",
+    "date": "Vogel",
+    "location": "Feuchtgebiete, Bruchwälder und Wiesen",
+    "image": "tier-kranich.jpg",
+    "imageAlt": "Kranich",
+    "imageCredit": "Kranich Balz (© W. Klaeber)",
+    "summary": "Trompetende Rufe und eindrucksvolle Balztänze machen Kraniche unverwechselbar.",
+    "description": "Trompetende Rufe und eindrucksvolle Balztänze machen Kraniche unverwechselbar.\n\nDie Vögel brüten an ruhigen, feuchten Stellen am Boden. Zur Nahrungssuche nutzen sie auch Wiesen und Felder. Im Herbst sammeln sich viele Tiere vor dem Weiterzug. Ungestörte Brutgebiete sind besonders wichtig.\n\nLebensraum\nFeuchtgebiete, Bruchwälder und Wiesen\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/kranich/"
+  },
+  {
+    "title": "Wildschwein",
+    "category": "Tiere",
+    "date": "Säugetier",
+    "location": "Wälder und deckungsreiche Landschaften",
+    "image": "tier-wildschwein.jpg",
+    "imageAlt": "Wildschwein",
+    "imageCredit": "Keiler- so heißt ein erwachsenes männliches Wildschwein © Klaus Weber",
+    "summary": "Mit kräftiger Schnauze sucht das Wildschwein nach Nahrung im Boden.",
+    "description": "Mit kräftiger Schnauze sucht das Wildschwein nach Nahrung im Boden.\n\nDer anpassungsfähige Allesfresser nutzt Wälder, Felder und sumpfige Stellen zum Suhlen. Weibchen und Jungtiere leben in Rotten. Die hellen Längsstreifen der Frischlinge sind besonders charakteristisch.\n\nLebensraum\nWälder und deckungsreiche Landschaften\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/wildschwein/"
+  },
+  {
+    "title": "Großer Abendsegler",
+    "category": "Tiere",
+    "date": "Fledermaus",
+    "location": "Alte Wälder und baumreiche Parks",
+    "image": "tier-grosser-abendsegler.jpg",
+    "imageAlt": "Großer Abendsegler",
+    "imageCredit": "Großer Abendsegler (© Sebastian Hennigs)",
+    "summary": "Eine im Naturpark aufgeführte Fledermausart, die im freien Luftraum nach Insekten jagt.",
+    "description": "Eine im Naturpark aufgeführte Fledermausart, die im freien Luftraum nach Insekten jagt.\n\nBaumhöhlen dienen als wichtige Quartiere. Auch geeignete Fledermauskästen können genutzt werden. Große Käfer, Schmetterlinge und andere fliegende Insekten gehören zur Nahrung. Der Erhalt alter Höhlenbäume hilft dieser Art.\n\nLebensraum\nAlte Wälder und baumreiche Parks\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/grosser-abendsegler/"
+  },
+  {
+    "title": "Hirschkäfer",
+    "category": "Tiere",
+    "date": "Insekt",
+    "location": "Alte Eichenwälder und Totholz",
+    "image": "tier-hirschkaefer.jpg",
+    "imageAlt": "Hirschkäfer",
+    "imageCredit": "Hirschkäfer - Männchen (© W. Klaeber)",
+    "summary": "Das auffällige Geweih der Männchen besteht aus vergrößerten Oberkiefern.",
+    "description": "Das auffällige Geweih der Männchen besteht aus vergrößerten Oberkiefern.\n\nDie Larven entwickeln sich über mehrere Jahre in geeignetem morschem Holz. Alte Bäume und Totholz sind deshalb unverzichtbar. Im Naturpark werden unter anderem die Eichenwälder der Dubrow, Katzen- und Radeberge als Lebensraum genannt.\n\nLebensraum\nAlte Eichenwälder und Totholz\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/hirschkaefer/"
+  },
+  {
+    "title": "Schlingnatter",
+    "category": "Tiere",
+    "date": "Reptil",
+    "location": "Sonnige Sand- und Heideflächen",
+    "image": "tier-schlingnatter.jpg",
+    "imageAlt": "Schlingnatter",
+    "imageCredit": "Schlingnatter (Foto: Wollenberg)",
+    "summary": "Eine ungiftige Schlange, die warme, strukturreiche Lebensräume bevorzugt.",
+    "description": "Eine ungiftige Schlange, die warme, strukturreiche Lebensräume bevorzugt.\n\nDie auch Glattnatter genannte Art lebt häufig versteckt. Zu ihrer Nahrung gehören Eidechsen und andere kleine Wirbeltiere. Sie bringt lebende Junge zur Welt. Zusammenhängende Lebensräume und ungestörte Verstecke sind wichtig.\n\nLebensraum\nSonnige Sand- und Heideflächen\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/schlingnatter/"
+  },
+  {
+    "title": "Ameisenlöwe",
+    "category": "Tiere",
+    "date": "Insektenlarve",
+    "location": "Trockene Sandflächen",
+    "image": "tier-ameisenloewe.jpg",
+    "imageAlt": "Ameisenlöwe",
+    "imageCredit": "User:Amada44 · CC BY-SA 4.0 · Wikimedia Commons",
+    "summary": "Unter diesem Namen kennt man die räuberischen Larven der Ameisenjungfern.",
+    "description": "Unter diesem Namen kennt man die räuberischen Larven der Ameisenjungfern.\n\nBei trichterbauenden Arten lauert die Larve am Grund einer Sandfalle auf kleine Insekten. Die Tiere sind keine Ameisen. Die Naturparkverwaltung nennt Ameisenlöwen als Bewohner der kargen Sand- und Heidelandschaften.\n\nLebensraum\nTrockene Sandflächen\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/naturpark/natur-und-landschaft/tiere/",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:A_ant-lion_8946.jpg",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "title": "Walker",
+    "category": "Tiere",
+    "date": "Insekt",
+    "location": "Sand- und Heidelandschaften",
+    "image": "tier-walker.jpg",
+    "imageAlt": "Walker",
+    "imageCredit": "Walker (© Wolfgang Klaeber)",
+    "summary": "Der auffällig gemusterte Blatthornkäfer ist das Maskottchen des Naturparks.",
+    "description": "Der auffällig gemusterte Blatthornkäfer ist das Maskottchen des Naturparks.\n\nDer Walker gehört zur Verwandtschaft der Maikäfer. Die Naturparkverwaltung führt ihn für die sandigen, kargen Landschaften der Region auf. Sein Muster macht den Käfer besonders markant.\n\nLebensraum\nSand- und Heidelandschaften\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.natur-brandenburg.de/themen/tiere/walker/"
+  },
+  {
+    "title": "Moorfrosch",
+    "category": "Tiere",
+    "date": "Amphibie",
+    "location": "Moore, Nasswiesen und Bruchwälder",
+    "image": "tier-moorfrosch.jpg",
+    "imageAlt": "Moorfrosch",
+    "imageCredit": "Moorfrosch (Foto: Tom Kirschey)",
+    "summary": "Ein Bewohner feuchter Landschaften mit einem besonderen Farbwechsel zur Paarungszeit.",
+    "description": "Ein Bewohner feuchter Landschaften mit einem besonderen Farbwechsel zur Paarungszeit.\n\nMännliche Moorfrösche können während der Paarungszeit blau bis violett erscheinen. Ansonsten ist die Art meist unauffällig braun gefärbt. Pflanzenreiche Laichgewässer und ein hoher Wasserstand gehören zu ihren Lebensraumansprüchen.\n\nLebensraum\nMoore, Nasswiesen und Bruchwälder\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.natur-brandenburg.de/themen/tiere/moorfrosch/"
+  },
+  {
+    "title": "Ringelnatter",
+    "category": "Tiere",
+    "date": "Reptil",
+    "location": "Gewässerreiche Feuchtgebiete",
+    "image": "tier-ringelnatter.jpg",
+    "imageAlt": "Ringelnatter",
+    "imageCredit": "Ringelnatter im Geäst (© Erhard Laube)",
+    "summary": "Eine gute Schwimmerin, oft an den hellen Flecken hinter dem Kopf zu erkennen.",
+    "description": "Eine gute Schwimmerin, oft an den hellen Flecken hinter dem Kopf zu erkennen.\n\nDie Ringelnatter ist ungiftig und ernährt sich überwiegend von Amphibien. Sie braucht neben Gewässern auch Sonnenplätze, Verstecke und geeignete Eiablageplätze. Verrottendes Pflanzenmaterial kann als warmer Brutplatz dienen.\n\nLebensraum\nGewässerreiche Feuchtgebiete\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/ringelnatter/"
+  },
+  {
+    "title": "Rotbauchunke",
+    "category": "Tiere",
+    "date": "Amphibie",
+    "location": "Sonnige, pflanzenreiche Kleingewässer",
+    "image": "tier-rotbauchunke.jpg",
+    "imageAlt": "Rotbauchunke",
+    "imageCredit": "Rotbauchunke (© Frank Schröder)",
+    "summary": "Die kleine Unke trägt ihre auffällige rotgelbe Zeichnung auf der Bauchseite.",
+    "description": "Die kleine Unke trägt ihre auffällige rotgelbe Zeichnung auf der Bauchseite.\n\nIm Frühsommer machen oft ihre Rufe auf sie aufmerksam. Laichgewässer und frostsichere Winterverstecke müssen erreichbar bleiben. Der Verlust kleiner Gewässer bedroht ihren Lebensraum.\n\nLebensraum\nSonnige, pflanzenreiche Kleingewässer\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/themen/tiere/rotbauchunke/"
+  },
+  {
+    "title": "Waschbär",
+    "category": "Tiere",
+    "date": "Säugetier",
+    "location": "Unterschiedliche Lebensräume der Region",
+    "image": "tier-waschbaer.jpg",
+    "imageAlt": "Waschbär",
+    "imageCredit": "Rhododendrites · CC BY-SA 4.0 · Wikimedia Commons",
+    "summary": "Die Naturparkverwaltung nennt den Waschbären als inzwischen häufigen Neubürger.",
+    "description": "Die Naturparkverwaltung nennt den Waschbären als inzwischen häufigen Neubürger.\n\nDie Art stammt ursprünglich aus Nordamerika und gehört nicht zur ursprünglichen Tierwelt der Region. Auffällig sind die dunkle Gesichtsmaske und der geringelte Schwanz. Das Bild zeigt die Art beispielhaft und ist kein Fundnachweis aus Heidesee.\n\nLebensraum\nUnterschiedliche Lebensräume der Region\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/naturpark/natur-und-landschaft/tiere/",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:Raccoon_in_Central_Park_%2835264%29.jpg",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "title": "Marderhund",
+    "category": "Tiere",
+    "date": "Säugetier",
+    "location": "Gewässernahe, deckungsreiche Landschaften",
+    "image": "tier-marderhund.jpg",
+    "imageAlt": "Marderhund",
+    "imageCredit": "Доктор рукиноги · CC BY-SA 3.0 · Wikimedia Commons",
+    "summary": "Ein weiterer Neubürger, den die Naturparkverwaltung für die Region aufführt.",
+    "description": "Ein weiterer Neubürger, den die Naturparkverwaltung für die Region aufführt.\n\nTrotz seines Namens gehört der Marderhund zu den Hunden. Seine ursprüngliche Heimat liegt in Ostasien. Anders als der Waschbär besitzt er keinen geringelten Schwanz. Das Foto ist ein Artbeispiel, kein lokaler Fundnachweis.\n\nLebensraum\nGewässernahe, deckungsreiche Landschaften\n\nVorkommen\nDie Übersicht bezieht sich auf die Naturparkregion Dahme-Heideseen, nicht auf einen Nachweis in jedem Ortsteil. Tiere aus Abstand beobachten und ihre Rückzugsorte ungestört lassen.",
+    "sourceUrl": "https://www.dahme-heideseen-naturpark.de/naturpark/natur-und-landschaft/tiere/",
+    "imageSourceUrl": "https://commons.wikimedia.org/wiki/File:%D0%95%D0%BD%D0%BE%D1%82%D0%BE%D0%B2%D0%B8%D0%B4%D0%BD%D0%B0%D1%8F_%D1%81%D0%BE%D0%B1%D0%B0%D0%BA%D0%B0_%D0%93%D1%80%D0%BE%D0%B4%D0%BD%D0%BE_%28cropped_2%29.jpg",
+    "imageLicenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  }
+];
+    const topicFilters = Array.from(document.querySelectorAll('.topic-filter'));
+    const topicContent = document.querySelector('.topic-content');
+    const eventGrid = document.querySelector('.event-grid');
+    const emptyMessage = document.querySelector('.topic-empty');
+    const eventDialog = document.querySelector('.event-dialog');
+    let currentRegistrationEvent = null;
+    function openEvent(event) {
+      document.getElementById('event-dialog-title').textContent = event.title;
+      eventDialog.querySelector('.event-dialog-meta').textContent = [event.date, event.location].filter(Boolean).join(' · ');
+      eventDialog.querySelector('.event-dialog-description').textContent = event.description;
+      const image = eventDialog.querySelector('.event-dialog-image');
+      image.src = event.image;
+      image.alt = event.imageAlt || '';
+      image.style.objectFit = event.imageFit || 'cover';
+      const credit = eventDialog.querySelector('.event-image-credit');
+      credit.textContent = event.imageCredit || '';
+      credit.hidden = !event.imageCredit;
+      const imageLinks = eventDialog.querySelector('.event-image-links');
+      imageLinks.hidden = !event.imageSourceUrl;
+      if (event.imageSourceUrl) {
+        imageLinks.querySelector('.image-source-link').href = event.imageSourceUrl;
+        imageLinks.querySelector('.image-license-link').href = event.imageLicenseUrl;
+      }
+      const contact = eventDialog.querySelector('.event-contact');
+      contact.hidden = !event.contactUrl;
+      if (event.contactUrl) contact.href = event.contactUrl;
+      else contact.removeAttribute('href');
+      const isEvent = !event.category || event.category === 'Veranstaltungen';
+      eventDialog.querySelector('.event-register').hidden = !isEvent;
+      currentRegistrationEvent = isEvent ? event : null;
+      eventDialog.showModal();
+    }
+    function renderTopics(topic) {
+      topicContent.querySelector('.topic-title').textContent = topic;
+      eventGrid.replaceChildren();
+      const visibleEvents = events.filter(entry => topic === 'Alle Themen' || (entry.category || 'Veranstaltungen') === topic);
+      eventGrid.setAttribute('aria-label', topic === 'Alle Themen' ? 'Tipps und Erlebnisse' : topic);
+      visibleEvents.forEach(event => {
+        const card = document.getElementById('event-card-template').content.firstElementChild.cloneNode(true);
+        card.querySelector('.event-title').textContent = event.title;
+        card.querySelector('.event-summary').textContent = event.summary;
+        card.querySelector('.event-meta').textContent = [event.date, event.location].filter(Boolean).join(' · ');
+        card.querySelector('.event-image').src = event.image;
+        card.querySelector('.event-image').style.objectFit = event.imageFit || 'cover';
+        card.querySelector('.event-image').alt = event.imageAlt || '';
+        card.addEventListener('click', () => openEvent(event));
+        eventGrid.append(card);
+      });
+      emptyMessage.hidden = visibleEvents.length > 0;
+      emptyMessage.textContent = topic === 'Veranstaltungen'
+        ? 'Die erste Veranstaltung ergänzen wir als Nächstes.'
+        : topic === 'Alle Themen'
+          ? 'Hier ist Platz für Tipps und Erlebnisse aus dem Naturpark. Die Beiträge ergänzen wir als Nächstes.'
+          : 'Zu diesem Thema sind noch keine Beiträge eingetragen.';
+    }
+    topicFilters.forEach(button => {
+      button.addEventListener('click', () => {
+        topicFilters.forEach(filter => filter.setAttribute('aria-pressed', String(filter === button)));
+        renderTopics(button.dataset.topic);
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          topicContent.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 250, easing: 'ease-out' });
+        }
+      });
+    });
+    eventDialog.addEventListener('click', event => {
+      if (event.target === eventDialog) {
+        const bounds = eventDialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) eventDialog.close();
+      }
+    });
+    renderTopics('Alle Themen');
+    const registrationDialog = document.querySelector('.registration-dialog');
+    eventDialog.querySelector('.event-register').addEventListener('click', () => {
+      if (!currentRegistrationEvent) return;
+      registrationDialog.querySelector('.registration-form').reset();
+      registrationDialog.querySelector('.registration-event').textContent = currentRegistrationEvent.title + ' · ' + currentRegistrationEvent.date;
+      registrationDialog.showModal();
+    });
+    registrationDialog.querySelector('.registration-form').addEventListener('submit', event => event.preventDefault());
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
